@@ -9,10 +9,24 @@
         <li class="cluster-entry" v-for="cluster in clusters" :key="cluster.uuid">
           <p class="cluster-uuid">{{ cluster.uuid }}</p>
           <h3 class="cluster-name">{{ cluster.name }}</h3>
+          <div class="cluster-button-group">
+            <button class="delete-cluster-button">Delete</button>
+            <button class="edit-cluster-button">Edit</button>
+            <button class="add-device-button">Add Device</button>
+          </div>
           <div class="cluster-device-list">
             <ul>
-              <li class="microdevice" v-for="device in cluster.devices" :key="device.uuid">
+              <li class="microdevice" v-for="device in cluster.devices" :key="device.id">
                 {{ device.name }}
+                <div v-if="device.topics">
+                  <button
+                    class="microdevice-action"
+                    v-for="topic in device?.topics"
+                    :key="`${device.id}-${topic.name}`"
+                  >
+                    {{ topic.topic }}
+                  </button>
+                </div>
               </li>
             </ul>
           </div>
@@ -28,10 +42,18 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
+interface Topic {
+  name: string
+  qos: number
+  topic: string
+}
+
 // Define interfaces for Cluster and Device
 interface Device {
-  uuid: string
+  id: string
   name: string
+  topics?: Topic[]
+  description?: string
   // Add other device properties as needed
 }
 
@@ -102,7 +124,7 @@ const fetchDevices = async (clusters: Cluster[]) => {
     // Fetch devices for each cluster
     for (const cluster of clusters) {
       const response = await axios.get(
-        `http://localhost:3001/api/v1/clusters/${cluster.uuid}/devices`,
+        `http://localhost:3001/api/v1/clusters/${cluster.uuid}/devices?include_topics=true&include_description=true&include_cluster_id=true`,
         {
           headers: {
             Accept: 'application/json',
@@ -149,15 +171,57 @@ onMounted(async () => {
   max-width: 20rem;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 
   &:hover {
     // transform: translateY(-5px);
     box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
-    border-top: 5px solid;
-    border-image: linear-gradient(to right, var(--primary), var(--secondary)) 1;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
+    border-top: 5px var(--primary) solid;
+  }
+
+  .cluster-button-group {
+    display: flex;
+    justify-content: center;
+    color: var(--light);
+    border: none;
+    cursor: pointer;
+    padding: 5px 10px;
+    font-size: 0.9rem;
+  }
+
+  .delete-cluster-button {
+    display: none;
+    background-color: #d9534f;
+    color: var(--light);
+    border-radius: 4px 0 0 4px;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+  }
+
+  .edit-cluster-button {
+    display: none;
+    background-color: goldenrod;
+    color: var(--light);
+    border: none;
+    padding: 0 10px 0 10px;
+    cursor: pointer;
+  }
+
+  .add-device-button {
+    display: none;
+    background-color: var(--secondary);
+    color: var(--light);
+    border: none;
+    cursor: pointer;
+    border-radius: 0 4px 4px 0;
+    padding: 5px;
+  }
+
+  &:hover .cluster-button-group button {
+    display: block;
   }
 
   .cluster-uuid {
@@ -181,22 +245,41 @@ onMounted(async () => {
   }
 }
 
-
 .microdevice {
   padding: 1rem;
   margin: 0.5rem 0;
   background-color: var(--light);
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+
+  .microdevice-action {
+    display: none;
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--primary);
+    color: var(--light);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: var(--secondary);
+    }
+  }
 
   &:hover {
     // transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     border-left: 5px solid;
     border-image: linear-gradient(to bottom, var(--primary), var(--secondary)) 1;
+
+    .microdevice-action {
+      display: block;
+    }
   }
 }
-
 </style>
-
