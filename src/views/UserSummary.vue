@@ -1,36 +1,11 @@
 <template>
   <main class="user-summary-page">
-    <h1>Summary</h1>
-    <p>This is the about page</p>
-
     <section v-if="clusters.length">
       <h2>Clusters</h2>
       <ul class="cluster-list">
-        <li class="cluster-entry" v-for="cluster in clusters" :key="cluster.uuid">
-          <p class="cluster-uuid">{{ cluster.uuid }}</p>
-          <h3 class="cluster-name">{{ cluster.name }}</h3>
-          <div class="cluster-button-group">
-            <button class="delete-cluster-button">Delete</button>
-            <button class="edit-cluster-button">Edit</button>
-            <button class="add-device-button">Add Device</button>
-          </div>
-          <div class="cluster-device-list">
-            <ul>
-              <li class="microdevice" v-for="device in cluster.devices" :key="device.id">
-                {{ device.name }}
-                <div v-if="device.topics">
-                  <button
-                    class="microdevice-action"
-                    v-for="topic in device?.topics"
-                    :key="`${device.id}-${topic.name}`"
-                  >
-                    {{ topic.topic }}
-                  </button>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </li>
+        <t class="cluster-entry" v-for="cluster in clusters" :key="cluster.uuid">
+          <ClusterCard :uuid="cluster.uuid" :name="cluster.name" :microdevices="cluster.devices" />
+        </t>
       </ul>
     </section>
 
@@ -40,27 +15,14 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue'
+import ClusterCard from '@/components/ClusterCard.vue'
 import axios from 'axios'
-
-interface Topic {
-  name: string
-  qos: number
-  topic: string
-}
-
-// Define interfaces for Cluster and Device
-interface Device {
-  id: string
-  name: string
-  topics?: Topic[]
-  description?: string
-  // Add other device properties as needed
-}
+import { getClusterMicrodevices, getClusters, type Microdevice } from '@/api/client'
 
 interface Cluster {
   uuid: string
   name: string
-  devices: Device[]
+  devices: Microdevice[]
 }
 
 // Reactive variables for credentials and clusters
@@ -95,53 +57,17 @@ const login = async () => {
   }
 }
 
-const fetchClusters = async () => {
-  try {
-    const response = await axios.get('http://localhost:3001/api/v1/clusters', {
-      headers: {
-        Accept: 'application/json',
-      },
-      withCredentials: true,
-    })
-
-    if (response.status === 200) {
-      // Assign fetched data to the reactive variable
-      clusters.value = response.data.map((clusterData: Cluster) => ({
-        ...clusterData,
-        devices: [], // Initialize devices array for each cluster
-      }))
-      console.log('Clusters fetched successfully', clusters.value)
-    } else {
-      console.error('Failed to fetch clusters with status code', response.status)
-    }
-  } catch (error) {
-    console.error('Failed to fetch clusters', error)
-  }
-}
-
 const fetchDevices = async (clusters: Cluster[]) => {
   try {
     // Fetch devices for each cluster
     for (const cluster of clusters) {
-      const response = await axios.get(
-        `http://localhost:3001/api/v1/clusters/${cluster.uuid}/devices?include_topics=true&include_description=true&include_cluster_id=true`,
-        {
-          headers: {
-            Accept: 'application/json',
-          },
-          withCredentials: true,
-        },
-      )
+      const res = await getClusterMicrodevices(cluster.uuid, true, true, true)
 
-      if (response.status === 200) {
-        // Update the devices array for the cluster
-        cluster.devices = response.data
-        console.log(`Devices fetched for cluster ${cluster.uuid}`, cluster.devices)
+      if (res.ok) {
+        cluster.devices = res.data
       } else {
-        console.error(
-          `Failed to fetch devices for cluster ${cluster.uuid} with status code`,
-          response.status,
-        )
+        console.error('Failed to fetch devices for cluster', cluster.uuid)
+        return []
       }
     }
   } catch (error) {
@@ -153,7 +79,10 @@ const fetchDevices = async (clusters: Cluster[]) => {
 onMounted(async () => {
   await login()
   await new Promise((resolve) => setTimeout(resolve, 1000))
-  await fetchClusters()
+
+  const res = await getClusters()
+  clusters.value = res
+
   await fetchDevices(clusters.value) // Fetch devices after clusters are loaded
 })
 </script>
@@ -162,124 +91,5 @@ onMounted(async () => {
 .cluster-list {
   list-style-type: none;
   padding: 0;
-}
-
-.cluster-entry {
-  margin: 0 1rem 1rem;
-  padding: 1rem;
-  background-color: var(--light);
-  max-width: 20rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s;
-
-  &:hover {
-    // transform: translateY(-5px);
-    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
-    border-top: 5px var(--primary) solid;
-  }
-
-  .cluster-button-group {
-    display: flex;
-    justify-content: center;
-    color: var(--light);
-    border: none;
-    cursor: pointer;
-    padding: 5px 10px;
-    font-size: 0.9rem;
-  }
-
-  .delete-cluster-button {
-    display: none;
-    background-color: #d9534f;
-    color: var(--light);
-    border-radius: 4px 0 0 4px;
-    border: none;
-    cursor: pointer;
-    padding: 5px;
-  }
-
-  .edit-cluster-button {
-    display: none;
-    background-color: goldenrod;
-    color: var(--light);
-    border: none;
-    padding: 0 10px 0 10px;
-    cursor: pointer;
-  }
-
-  .add-device-button {
-    display: none;
-    background-color: var(--secondary);
-    color: var(--light);
-    border: none;
-    cursor: pointer;
-    border-radius: 0 4px 4px 0;
-    padding: 5px;
-  }
-
-  &:hover .cluster-button-group button {
-    display: block;
-  }
-
-  .cluster-uuid {
-    font-size: 0.9rem;
-    color: var(--dark-alt);
-    margin-bottom: 0.5rem;
-  }
-
-  .cluster-name {
-    margin: 0;
-  }
-
-  .cluster-device-list {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out;
-  }
-
-  &:hover .cluster-device-list {
-    max-height: 500px; // Adjust this value based on the expected content height
-  }
-}
-
-.microdevice {
-  padding: 1rem;
-  margin: 0.5rem 0;
-  background-color: var(--light);
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s;
-
-  .microdevice-action {
-    display: none;
-    margin-top: 0.5rem;
-    padding: 0.5rem 1rem;
-    background-color: var(--primary);
-    color: var(--light);
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-
-    &:hover {
-      background-color: var(--secondary);
-    }
-  }
-
-  &:hover {
-    // transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    border-left: 5px solid;
-    border-image: linear-gradient(to bottom, var(--primary), var(--secondary)) 1;
-
-    .microdevice-action {
-      display: block;
-    }
-  }
 }
 </style>
