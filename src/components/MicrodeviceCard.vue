@@ -1,7 +1,5 @@
 <template>
-  <li>
-    {{ props.name }}
-  </li>
+  {{ props.name }}
 </template>
 
 <script lang="ts" setup>
@@ -13,8 +11,7 @@ const props = defineProps<{
 </script>
 
 <style lang="scss" scoped>
-li {
-  list-style-type: none;
+div {
   // Basic styling for the list item
   margin: 0 1rem 1rem;
   padding: 1rem;
@@ -22,9 +19,5 @@ li {
   max-width: 20rem;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-
-  &:hover {
-    border-top: 5px var(--secondary) solid;
-  }
 }
 </style>

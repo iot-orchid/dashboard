@@ -42,32 +42,61 @@ export interface Microdevice {
   description?: string
 }
 
+export interface Cluster {
+  uuid: string
+  name: string
+}
+
 // ----------------------
 // API Functions
 // ----------------------
 
 // API function for login
-export const apiLogin = async (username: string, password: string) => {
+export const apiLogin = async (
+  username: string,
+  password: string,
+): Promise<Result<boolean, Error>> => {
   try {
     const response = await client.post(`${API_ENDPOINTS.API_ENDPOINTS.LOGIN}`, {
       username,
       password,
     })
-    return response.data
+
+    if (response.status === 200) {
+      return Ok(true)
+    } else {
+      return Err(new Error('Login failed'))
+    }
   } catch (error) {
     console.error('Error logging in', error)
+    if (error instanceof Error) {
+      return Err(error)
+    }
+    return Err(new Error('Unknown error'))
   }
 }
 
 // API function to fetch clusters (optionally filtered by clusterId)
-export const getClusters = async (clusterId?: string) => {
+export const getClusters = async (
+  clusterId?: string,
+): Promise<Result<Array<Cluster>, Error>> => {
   try {
-    const response = await client.get(
-      `${API_ENDPOINTS.API_ENDPOINTS.CLUSTERS}${clusterId ? { clusterId } : ''}`,
-    )
-    return response.data
+    const response = await client.get(`${API_ENDPOINTS.API_ENDPOINTS.CLUSTERS}`, {
+      params: clusterId ? { cluster_id: clusterId } : {},
+    })
+
+    if (clusterId) {
+      return Ok([response.data.cluster])
+    }
+
+    return Ok(response.data)
+
   } catch (error) {
     console.error('Error fetching clusters', error)
+    if (error instanceof Error) {
+      return Err(error)
+    }
+    return Err(new Error('Unknown error'))
   }
 }
 

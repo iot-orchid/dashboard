@@ -1,5 +1,5 @@
 <template>
-  <div class="cluster-actions">
+  <div>
     <button class="cluster-delete" @dblclick="handleDelete">Delete</button>
     <button class="cluster-edit" @dblclick="handleEdit">Edit</button>
     <button class="cluster-add-device" @dblclick="handleAddDevice">Add Device</button>
@@ -33,7 +33,7 @@ const handleAddDevice = () => {
 </script>
 
 <style lang="scss" scoped>
-  .cluster-actions {
+  div {
     display: flex;
     justify-content: center;
 
