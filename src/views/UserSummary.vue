@@ -13,9 +13,11 @@
       <!-- Work Area -->
       <div class="work-area">
         <ul>
-          <div v-if="showCreateClusterForm">
-            <CreateClusterForm />
-          </div>
+          <transition name="fade-slide">
+            <div v-if="showCreateClusterForm" class="form-container">
+              <CreateClusterForm />
+            </div>
+          </transition>
           <input
             class="cluster-search"
             type="text"
@@ -160,9 +162,9 @@ ul {
 
 .user-summary-page {
   padding: 2rem;
-  max-width: 1200px; /* Limit the page width */
-  margin: 0 auto; /* Center the page horizontally */
-  box-sizing: border-box; /* Include padding in width calculation for consistency */
+  max-width: 1200px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .cluster-search {
@@ -180,5 +182,28 @@ ul {
     box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
     outline: none;
   }
+}
+
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition:
+    opacity 0.1s ease,
+    transform 0.2s ease;
+}
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-10px); /* Slide in/out effect */
+}
+.fade-slide-enter-to,
+.fade-slide-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+.form-container {
+  margin-bottom: 1rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 </style>
