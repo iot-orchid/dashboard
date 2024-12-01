@@ -13,7 +13,7 @@
 		<h3>Menu</h3>
 		<div class="menu">
 			<router-link to="/" class="button">
-				<span class="material-icons">home</span>
+				<span class="material-icons">group_work </span>
 				<span class="text">Home</span>
 			</router-link>
 			<router-link to="/about" class="button">

@@ -7,8 +7,9 @@
 </template>
 
 <script lang="ts" setup>
-import { deleteCluster } from '@/api/client';
+import { useClusterStore } from '@/store/ClusterStore'
 import { defineProps } from 'vue'
+import { useToast } from 'vue-toastification'
 
 interface ClusterActionProps {
   uuid: string
@@ -17,9 +18,21 @@ interface ClusterActionProps {
 
 const props = defineProps<ClusterActionProps>()
 
-const handleDelete = () => {
-  deleteCluster([props.uuid])
-  console.log(`Deleting cluster ${props.uuid}`)
+const toast = useToast()
+
+const handleDelete = async () => {
+  const res = await useClusterStore().deleteClusters([props.uuid])
+  if (!res.ok) {
+    toast.error('Failed to delete cluster')
+    console.error(res.error)
+    return
+  }
+
+  if (res.data === 0) {
+    toast.error(`Cluster '${props.name}' was not found`)
+    return
+  }
+  toast.success(`Cluster '${props.name}' was deleted` )
 }
 
 const handleEdit = () => {
@@ -29,39 +42,36 @@ const handleEdit = () => {
 const handleAddDevice = () => {
   console.log(`Adding device to cluster ${props.uuid}`)
 }
-
 </script>
 
 <style lang="scss" scoped>
-  div {
-    display: flex;
-    justify-content: center;
+div {
+  display: flex;
+  justify-content: center;
 
-    .cluster-delete {
-      background-color: #d9534f;
-      border-radius: 4px 0 0 4px;
-    }
-
-    .cluster-edit {
-      background-color: goldenrod;
-    }
-
-    .cluster-add-device {
-      background-color: var(--secondary);
-      border-radius: 0 4px 4px 0;
-    }
-
+  .cluster-delete {
+    background-color: #d9534f;
+    border-radius: 4px 0 0 4px;
   }
 
-  button {
-    border: none;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    color: var(--light);
-
-    &:hover {
-      filter: brightness(0.8);
-    }
+  .cluster-edit {
+    background-color: goldenrod;
   }
 
+  .cluster-add-device {
+    background-color: var(--secondary);
+    border-radius: 0 4px 4px 0;
+  }
+}
+
+button {
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  color: var(--light);
+
+  &:hover {
+    filter: brightness(0.8);
+  }
+}
 </style>

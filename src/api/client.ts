@@ -4,16 +4,16 @@ import API_ENDPOINTS from './endpoints'
 // ----------------------
 // Result Type Definition
 // ----------------------
-type Result<T, E> = { ok: true; data: T } | { ok: false; error: E }
+export type Result<T, E> = { ok: true; data: T } | { ok: false; error: E }
 
 // ----------------------
 // Utility Functions for Result
 // ----------------------
-function Ok<T, E>(data: T): Result<T, E> {
+export function Ok<T, E>(data: T): Result<T, E> {
   return { ok: true, data }
 }
 
-function Err<T, E>(error: E): Result<T, E> {
+export function Err<T, E>(error: E): Result<T, E> {
   return { ok: false, error }
 }
 
@@ -29,22 +29,32 @@ const client = axios.create({
 // ----------------------
 // Interfaces
 // ----------------------
-interface Topic {
+export type Topic = {
   name: string
   qos: number
   topic: string
 }
-
-export interface Microdevice {
+export type Microdevice = {
   id: string
   name: string
   topics?: Topic[]
   description?: string
 }
 
-export interface Cluster {
+export type Cluster = {
   uuid: string
   name: string
+}
+
+export type CreateCluster = {
+  name: string
+  description?: string
+  region?: string
+}
+
+export type DeleteClusterResponse = {
+  deleted: number
+  message: string
 }
 
 // ----------------------
@@ -76,10 +86,45 @@ export const apiLogin = async (
   }
 }
 
+// API function to create a cluster
+export const createCluster = async (
+  name: string,
+  region: string,
+  description?: string,
+): Promise<Result<Cluster, Error>> => {
+  try {
+    const res = await client.post(
+      `${API_ENDPOINTS.API_ENDPOINTS.CLUSTERS}`,
+      {
+        name,
+        region,
+        description,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        withCredentials: true,
+      },
+    )
+
+    if (res.status !== 200) {
+      throw new Error('Error creating cluster')
+    }
+
+    return Ok(res.data)
+  } catch (error) {
+    console.error('Error creating cluster', error)
+    if (error instanceof Error) {
+      return Err(error)
+    }
+    return Err(new Error('Unknown error'))
+  }
+}
+
 // API function to fetch clusters (optionally filtered by clusterId)
-export const getClusters = async (
-  clusterId?: string,
-): Promise<Result<Array<Cluster>, Error>> => {
+export const fetchClusters = async (clusterId?: string): Promise<Result<Array<Cluster>, Error>> => {
   try {
     const response = await client.get(`${API_ENDPOINTS.API_ENDPOINTS.CLUSTERS}`, {
       params: clusterId ? { cluster_id: clusterId } : {},
@@ -90,7 +135,6 @@ export const getClusters = async (
     }
 
     return Ok(response.data)
-
   } catch (error) {
     console.error('Error fetching clusters', error)
     if (error instanceof Error) {
@@ -101,7 +145,9 @@ export const getClusters = async (
 }
 
 // API function to delete clusters by ID array
-export const deleteCluster = async (clusterIds: Array<string>) => {
+export const deleteCluster = async (
+  clusterIds: Array<string>,
+): Promise<Result<DeleteClusterResponse, Error>> => {
   try {
     const response = await client.delete(`${API_ENDPOINTS.API_ENDPOINTS.CLUSTERS}`, {
       headers: {
@@ -112,9 +158,18 @@ export const deleteCluster = async (clusterIds: Array<string>) => {
       },
       withCredentials: true,
     })
-    return response.data
+
+    if (response.status !== 200) {
+      throw new Error('Error deleting cluster')
+    }
+
+    return Ok(response.data)
   } catch (error) {
     console.error('Error deleting cluster', error)
+    if (error instanceof Error) {
+      return Err(error)
+    }
+    return Err(new Error('Unknown error'))
   }
 }
 

@@ -1,13 +1,15 @@
 <template>
-  <p>{{ props.uuid }}</p>
-  <h3>{{ props.name }}</h3>
-  <div class="cluster-details">
-    <ClusterActions :uuid="props.uuid" :name="props.name" />
-    <ul v-if="props.microdevices">
-      <li v-for="md in props.microdevices" :key="md.id">
-        <MicrodeviceCard :name="md.name" />
-      </li>
-    </ul>
+  <div class="cluster-card">
+    <p>{{ props.uuid }}</p>
+    <h3>{{ props.name }}</h3>
+    <div class="cluster-details">
+      <ClusterActions :uuid="props.uuid" :name="props.name" />
+      <ul v-if="clusterStore.getClusterMicrodevices(props.uuid)">
+        <li v-for="md in clusterStore.getClusterMicrodevices(props.uuid)" :key="md.id">
+          <MicrodeviceCard :name="md.name" />
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -15,16 +17,19 @@
 import { defineProps } from 'vue'
 import ClusterActions from './ClusterActions.vue'
 import MicrodeviceCard from './MicrodeviceCard.vue'
-import type { Microdevice } from '@/api/client'
+import { useClusterStore } from '@/store/ClusterStore';
+
+const clusterStore = useClusterStore()
 
 const props = defineProps<{
   uuid: string
   name: string
-  microdevices?: Array<Microdevice>
 }>()
+
 </script>
 
 <style lang="scss" scoped>
+
 li {
   margin: 0 1rem 1rem;
   padding: 1rem;
@@ -54,6 +59,4 @@ ul {
 .cluster-details {
   justify-content: center;
 }
-
-
 </style>
