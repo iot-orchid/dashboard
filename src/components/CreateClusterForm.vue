@@ -1,13 +1,16 @@
 <template>
   <div class="create-cluster-form">
-    <input type="text" v-model="clusterName" placeholder="Cluster name" />
-    <select v-model="clusterRegion">
-      <option value="" disabled selected>Select a region</option>
-      <option v-for="region in clusterStore.getRegions()" :key="region" :value="region">
-        {{ region }}
-      </option>
-    </select>
-    <input v-model="clusterDescription" type="text" placeholder="Description" />
+    <h4>Create New Cluster</h4>
+    <form @submit.prevent="createCluster">
+      <input type="text" v-model="clusterName" placeholder="Cluster name" />
+      <select v-model="clusterRegion">
+        <option value="" disabled selected>Select a region</option>
+        <option v-for="region in clusterStore.getRegions()" :key="region" :value="region">
+          {{ region }}
+        </option>
+      </select>
+      <input v-model="clusterDescription" type="text" placeholder="Description" />
+    </form>
     <button @click="createCluster">Create Cluster</button>
     <div class="uuid-note">
       <span class="material-icons">error</span>
@@ -19,7 +22,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { useClusterStore } from '@/store/ClusterStore'
-import { useToast } from 'vue-toastification';
+import { useToast } from 'vue-toastification'
 
 const clusterStore = useClusterStore()
 
@@ -30,8 +33,11 @@ const clusterDescription = ref('')
 const toast = useToast()
 
 const createCluster = async () => {
-
-  const res = await clusterStore.createCluster(clusterName.value, clusterRegion.value, clusterDescription.value)
+  const res = await clusterStore.createCluster(
+    clusterName.value,
+    clusterRegion.value,
+    clusterDescription.value,
+  )
 
   if (!res.ok) {
     console.error('Failed to create cluster')
@@ -52,6 +58,7 @@ const createCluster = async () => {
   flex-direction: column; /* Use column for a more responsive layout */
   gap: 1.5rem; /* Increase spacing for better aesthetics */
   margin-bottom: 2rem;
+  margin-top: 1rem;
   max-width: 20rem;
   background-color: white;
   padding: 1rem;

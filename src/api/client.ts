@@ -205,3 +205,28 @@ export const getClusterMicrodevices = async (
     }
   }
 }
+
+export const createMicrodevice = async (
+  clusterId: string,
+  name: string,
+  description?: string,
+  topics?: Array<Topic>,
+): Promise<Result<Microdevice, Error>> => {
+  try {
+    const response = await client.post(`cluster/${clusterId}/devices`, {
+      name,
+      description,
+      topics,
+    })
+
+    return Ok(response.data)
+  } catch (error) {
+    console.error('Error creating microdevice', error)
+
+    if (error instanceof Error) {
+      return Err(error)
+    } else {
+      return Err(new Error('Unknown error'))
+    }
+  }
+}

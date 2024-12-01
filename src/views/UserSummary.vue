@@ -1,25 +1,44 @@
 <template>
   <main class="user-summary-page">
     <section v-if="clusterStore.clusters.length">
-      <h2>Clusters</h2>
+      <div>
+        <h3>Clusters</h3>
+      </div>
       <ClustersSummary />
       <button class="create-cluster" @click.prevent="toggleCreateClusterForm">
         <span class="material-icons"> add_circle </span>
         <p>Create Cluster</p>
       </button>
-      <div v-if="showCreateClusterForm">
-        <CreateClusterForm />
-      </div>
 
       <!-- Work Area -->
       <div class="work-area">
         <ul>
-          <li class="cluster-card" v-for="cluster in clusterStore.clusters" :key="cluster.uuid">
-            <ClusterCard :uuid="cluster.uuid" :name="cluster.name" />
+          <div v-if="showCreateClusterForm">
+            <CreateClusterForm />
+          </div>
+          <input
+            class="cluster-search"
+            type="text"
+            v-model="clusterSearchQuery"
+            placeholder="Search clusters"
+          />
+          <li
+            v-for="cluster in clusterStore.clusters"
+            :key="cluster.uuid"
+            @click="selectCluster(cluster)"
+            :class="{ selected: selectedCluster && selectedCluster.uuid === cluster.uuid }"
+          >
+            <p>{{ cluster.uuid }}</p>
+            <h3>{{ cluster.name }}</h3>
           </li>
         </ul>
         <div class="cluster-graph">
-          <h2>Hello World</h2>
+          <div v-if="selectedCluster">
+            <ClusterCard :uuid="selectedCluster.uuid" :name="selectedCluster.name" />
+          </div>
+          <div v-else>
+            <p>Select a cluster to view its details</p>
+          </div>
         </div>
       </div>
     </section>
@@ -30,7 +49,7 @@
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue'
 import ClusterCard from '@/components/ClusterCard.vue'
-import { apiLogin } from '@/api/client'
+import { apiLogin, type Cluster } from '@/api/client'
 import { useClusterStore } from '@/store/ClusterStore'
 import ClustersSummary from '@/components/ClusterSummary.vue'
 import CreateClusterForm from '@/components/CreateClusterForm.vue'
@@ -43,9 +62,15 @@ const clusterStore = useClusterStore()
 
 // Reactive variable to toggle the create cluster form
 const showCreateClusterForm = ref(false)
+const clusterSearchQuery = ref('')
+const selectedCluster = ref<Cluster | null>(null)
 
 const toggleCreateClusterForm = () => {
   showCreateClusterForm.value = !showCreateClusterForm.value
+}
+
+const selectCluster = (cluster: Cluster) => {
+  selectedCluster.value = cluster
 }
 
 // Trigger login and fetchClusters actions when the component is mounted
@@ -83,18 +108,15 @@ ul {
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
-    :deep(.cluster-details) {
-      display: none;
-    }
-
     &:hover {
-      border-top: 5px solid var(--primary);
-
-      :deep(.cluster-details) {
-        display: block;
-      }
+      border-left: 5px solid var(--primary);
+      cursor: pointer;
     }
   }
+}
+
+.selected {
+  border-left: 5px solid var(--secondary);
 }
 
 .create-cluster {
@@ -108,7 +130,6 @@ ul {
   color: white;
   p {
     margin-left: 0.5rem;
-    display: none;
   }
 
   .material-icons {
@@ -117,9 +138,7 @@ ul {
   }
 
   &:hover {
-    p {
-      display: block;
-    }
+    filter: brightness(0.9);
   }
 }
 
@@ -140,6 +159,26 @@ ul {
 }
 
 .user-summary-page {
-  padding: 4rem;
+  padding: 2rem;
+  max-width: 1200px; /* Limit the page width */
+  margin: 0 auto; /* Center the page horizontally */
+  box-sizing: border-box; /* Include padding in width calculation for consistency */
+}
+
+.cluster-search {
+  padding: 0.5rem;
+  border: 1px solid var(--grey);
+  border-radius: 8px;
+  margin-top: 1rem;
+  font-size: 1rem;
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
+
+  &:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+    outline: none;
+  }
 }
 </style>

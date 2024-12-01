@@ -1,8 +1,17 @@
 <template>
-  <div>
-    <button class="cluster-delete" @dblclick="handleDelete">Delete</button>
-    <button class="cluster-edit" @dblclick="handleEdit">Edit</button>
-    <button class="cluster-add-device" @dblclick="handleAddDevice">Add Device</button>
+  <div class="cluster-actions">
+    <button class="action-button cluster-delete" @dblclick="handleDelete">
+      <span class="material-icons">delete</span>
+      Delete
+    </button>
+    <button class="action-button cluster-edit" @dblclick="handleEdit">
+      <span class="material-icons">edit</span>
+      Edit
+    </button>
+    <button class="action-button cluster-add-device" @click.prevent="handleAddDevice">
+      <span class="material-icons">add_circle</span>
+      Add Device
+    </button>
   </div>
 </template>
 
@@ -17,6 +26,9 @@ interface ClusterActionProps {
 }
 
 const props = defineProps<ClusterActionProps>()
+const emits = defineEmits<{
+  (e: 'add-device', uuid: string): string
+}>()
 
 const toast = useToast()
 
@@ -32,7 +44,7 @@ const handleDelete = async () => {
     toast.error(`Cluster '${props.name}' was not found`)
     return
   }
-  toast.success(`Cluster '${props.name}' was deleted` )
+  toast.success(`Cluster '${props.name}' was deleted`)
 }
 
 const handleEdit = () => {
@@ -41,37 +53,49 @@ const handleEdit = () => {
 
 const handleAddDevice = () => {
   console.log(`Adding device to cluster ${props.uuid}`)
+
+  emits('add-device', props.uuid)
 }
 </script>
 
 <style lang="scss" scoped>
-div {
+.cluster-actions {
   display: flex;
   justify-content: center;
+  gap: 0.5rem;
+}
 
-  .cluster-delete {
-    background-color: #d9534f;
-    border-radius: 4px 0 0 4px;
+.action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    background-color 0.3s,
+    transform 0.2s;
+
+  &:hover {
+    background-color: darken(#d9534f, 10%); /* Slightly darken on hover */
+    transform: translateY(-2px); /* Lift effect */
   }
 
-  .cluster-edit {
+  &.cluster-delete {
+    background-color: #d9534f;
+  }
+
+  &.cluster-edit {
     background-color: goldenrod;
   }
 
-  .cluster-add-device {
+  &.cluster-add-device {
     background-color: var(--secondary);
-    border-radius: 0 4px 4px 0;
-  }
-}
-
-button {
-  border: none;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  color: var(--light);
-
-  &:hover {
-    filter: brightness(0.8);
   }
 }
 </style>

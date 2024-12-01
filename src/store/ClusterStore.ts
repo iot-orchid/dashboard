@@ -5,9 +5,11 @@ import {
   getClusterMicrodevices as fetchClusterMicrodevices,
   deleteCluster as apiDeleteClusters,
   createCluster as apiCreateCluster,
+  createMicrodevice as apiCreateMicrodevice,
   type Result,
   Ok,
   Err,
+  type Topic,
 } from '@/api/client'
 import { defineStore } from 'pinia'
 import { ref, type Ref } from 'vue'
@@ -31,7 +33,7 @@ export const useClusterStore = defineStore('clusters', () => {
 
     clusters.value.push(res.data)
     console.log(res.data)
-    console.log(res)
+    console.log()
     clusterMicrodevices.value.set(res.data.uuid, [])
 
     return Ok(res.data)
@@ -62,6 +64,25 @@ export const useClusterStore = defineStore('clusters', () => {
 
   const getClusterMicrodevices = (clusterId: string): Microdevice[] => {
     return clusterMicrodevices.value.get(clusterId) || []
+  }
+
+  const createMicrodevice = async (
+    clusterId: string,
+    name: string,
+    description?: string,
+    topic?: Topic[],
+  ): Promise<Result<Microdevice, Error>> => {
+    const res = await apiCreateMicrodevice(clusterId, name, description, topic)
+
+    if (!res.ok) {
+      return Err(new Error('Failed to create microdevice'))
+    }
+
+    const microdevices = clusterMicrodevices.value.get(clusterId) || []
+    microdevices.push(res.data)
+    clusterMicrodevices.value.set(clusterId, microdevices)
+
+    return Ok(res.data)
   }
 
   const getClusterCount = (): number => {
@@ -102,6 +123,7 @@ export const useClusterStore = defineStore('clusters', () => {
     getRegions,
     getClusters,
     getClusterMicrodevices,
+    createMicrodevice,
     getMicrodeviceCount,
     getClusterCount,
     deleteClusters,
