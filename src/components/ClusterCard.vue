@@ -1,5 +1,5 @@
 <template>
-  <div class="cluster-card">
+  <div class="cluster-card" :class="appStore.colorMode">
     <div class="cluster-card-header">
       <h3 class="cluster-name">{{ props.name }}</h3>
       <ClusterActions :uuid="props.uuid" :name="props.name" @add-device="toggleAddDeviceForm" />
@@ -28,7 +28,9 @@ import { defineProps, ref, computed } from 'vue'
 import ClusterActions from './ClusterActions.vue'
 import MicrodeviceCard from './MicrodeviceCard.vue'
 import { useClusterStore } from '@/store/ClusterStore'
+import { useAppStore } from '@/store/AppStore'
 
+const appStore = useAppStore()
 const clusterStore = useClusterStore()
 const showAddDeviceForm = ref(false)
 
@@ -44,24 +46,47 @@ const toggleAddDeviceForm = () => {
 const microdevices = computed(() => clusterStore.getClusterMicrodevices(props.uuid))
 </script>
 
+
 <style lang="scss" scoped>
 .cluster-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+
+  &.dark {
+    background: var(--dark-alt);
+    color: white;
+  }
+
+  &.light {
+    background: white;
+    color: black;
+  }
 
   .cluster-card-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    /* Stack children vertically */
+    align-items: flex-start;
+    /* Align content to the left */
     border-bottom: 1px solid #eee;
     padding-bottom: 8px;
     margin-bottom: 16px;
+
+    .cluster-name {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      /* Add spacing between name and actions */
+    }
   }
 
-  .cluster-name {
-    font-size: 1.25rem;
-    font-weight: 600;
+
+  .cluster-card &.dark {
+    color: white;
+  }
+
+  .cluster-card &.light {
     color: #333;
   }
 

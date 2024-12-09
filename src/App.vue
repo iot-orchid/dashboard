@@ -1,5 +1,5 @@
 <template>
-  <div class="app">
+  <div class="app" :class="appStore.colorMode">
     <!-- Sidebar -->
     <AppSidebar />
 
@@ -10,6 +10,11 @@
 
 <script lang="ts" setup>
 import AppSidebar from './components/AppSidebar.vue'
+import { useAppStore } from './store/AppStore';
+
+
+const appStore = useAppStore()
+
 </script>
 
 <style lang="scss">
@@ -31,6 +36,14 @@ import AppSidebar from './components/AppSidebar.vue'
 }
 
 body {
+  background: var(--light);
+}
+
+.app.dark {
+  background: var(--dark);
+}
+
+.app.light {
   background: var(--light);
 }
 

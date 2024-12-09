@@ -70,9 +70,9 @@ const handleAddDevice = () => {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
+  padding: 0.3rem 0.3rem;
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 300;
   color: #fff;
   border: none;
   border-radius: 6px;

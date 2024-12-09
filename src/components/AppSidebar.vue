@@ -59,7 +59,7 @@ aside {
 	display: flex;
 	flex-direction: column;
 
-	background-color: var(--dark);
+	background-color: var(--dark-alt);
 	color: var(--light);
 
 	width: calc(2rem + 32px);
