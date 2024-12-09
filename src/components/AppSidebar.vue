@@ -1,211 +1,239 @@
 <template>
-	<aside :class="`${is_expanded ? 'is-expanded' : ''}`">
-		<div :class="is_expanded ? 'logo-expanded': 'logo'">
+  <aside :class="`${is_expanded ? 'is-expanded' : ''}`">
+    <div :class="is_expanded ? 'logo-expanded' : 'logo'">
       <img :src="is_expanded ? expandedLogoURL : logoURL" alt="Vue" />
-		</div>
+    </div>
 
-		<div class="menu-toggle-wrap">
-			<button class="menu-toggle" @click="ToggleMenu">
-				<span class="material-icons">keyboard_double_arrow_right</span>
-			</button>
-		</div>
+    <div class="menu-toggle-wrap">
+      <button class="menu-toggle" @click="ToggleMenu">
+        <span class="material-icons">keyboard_double_arrow_right</span>
+      </button>
+    </div>
 
-		<h3>Menu</h3>
-		<div class="menu">
-			<router-link to="/" class="button">
-				<span class="material-icons">group_work </span>
-				<span class="text">Home</span>
-			</router-link>
-			<router-link to="/about" class="button">
-				<span class="material-icons">description</span>
-				<span class="text">About</span>
-			</router-link>
-			<router-link to="/team" class="button">
-				<span class="material-icons">group</span>
-				<span class="text">Team</span>
-			</router-link>
-			<router-link to="/contact" class="button">
-				<span class="material-icons">email</span>
-				<span class="text">Contact</span>
-			</router-link>
-		</div>
+    <h3>Menu</h3>
+    <div class="menu">
+      <router-link to="/" class="button">
+        <span class="material-icons">group_work </span>
+        <span class="text">Clusters</span>
+      </router-link>
+      <router-link to="/about" class="button">
+        <span class="material-symbols-outlined">joystick</span>
+        <span class="text">Microdevices</span>
+      </router-link>
+    </div>
 
-		<div class="flex"></div>
+    <div class="flex"></div>
 
-		<div class="menu">
-			<router-link to="/settings" class="button">
-				<span class="material-icons">settings</span>
-				<span class="text">Settings</span>
-			</router-link>
-		</div>
-	</aside>
+    <div class="menu">
+      <button class="button" @click.prevent="handleToggleColor()">
+        <span class="material-symbols-outlined">{{ appStore.colorMode === 'dark' ? 'dark_mode' : 'light_mode' }}</span>
+        <span class="text">{{ appStore.colorMode === 'dark' ? 'Dark Mode' : 'Light Mode' }}</span>
+      </button>
+      <router-link to="/settings" class="button">
+        <span class="material-icons">settings</span>
+        <span class="text">Settings</span>
+      </router-link>
+    </div>
+  </aside>
 </template>
 
 <script lang="ts" setup>
 import { ref } from 'vue'
 import logoURL from '../assets/logo.png'
 import expandedLogoURL from "../assets/full_logo.png"
+import { useAppStore } from '@/store/AppStore';
+
+const appStore = useAppStore()
 
 const is_expanded = ref(localStorage.getItem("is_expanded") === "true")
 
+const handleToggleColor = () => {
+  if (appStore.colorMode === 'dark') {
+    appStore.setLightMode()
+  } else {
+    appStore.setDarkMode()
+  }
+}
+
 const ToggleMenu = () => {
-	is_expanded.value = !is_expanded.value
-	localStorage.setItem("is_expanded", is_expanded.value.toString())
+  is_expanded.value = !is_expanded.value
+  localStorage.setItem("is_expanded", is_expanded.value.toString())
 }
 </script>
 
 <style lang="scss" scoped>
 aside {
-	display: flex;
-	flex-direction: column;
+  display: flex;
+  flex-direction: column;
 
-	background-color: var(--dark-alt);
-	color: var(--light);
+  background-color: var(--dark-alt);
+  color: var(--light);
 
-	width: calc(2rem + 32px);
-	overflow: hidden;
-	min-height: 100vh;
-	padding: 1rem;
+  width: calc(2rem + 32px);
+  overflow: hidden;
+  min-height: 100vh;
+  padding: 1rem;
 
-	transition: 0.2s ease-in-out;
+  transition: 0.2s ease-in-out;
 
-	.flex {
-		flex: 1 1 0%;
-	}
-
-	.logo {
-		margin-bottom: 1rem;
-
-		img {
-			width: 2rem;
-		}
-	}
-
-  .logo-expanded {
-      margin-bottom: 1rem;
-
-      img {
-        width: 10rem;
-      }
+  .flex {
+    flex: 1 1 0%;
   }
 
-	.menu-toggle-wrap {
-		display: flex;
-		justify-content: flex-end;
-		margin-bottom: 1rem;
+  .logo {
+    margin-bottom: 1rem;
 
-		position: relative;
-		top: 0;
-		transition: 0.2s ease-in-out;
+    img {
+      width: 2rem;
+    }
+  }
 
-		.menu-toggle {
-			transition: 0.2s ease-in-out;
-			.material-icons {
-				font-size: 2rem;
-				color: var(--light);
-				transition: 0.2s ease-out;
-			}
+  .logo-expanded {
+    margin-bottom: 1rem;
 
-			&:hover {
-				.material-icons {
-					color: var(--primary);
-					transform: translateX(0.5rem);
-				}
-			}
-		}
-	}
+    img {
+      width: 10rem;
+    }
+  }
 
-	h3, .button .text {
-		opacity: 0;
-		transition: opacity 0.3s ease-in-out;
-	}
+  .menu-toggle-wrap {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
 
-	h3 {
-		color: var(--grey);
-		font-size: 0.875rem;
-		margin-bottom: 0.5rem;
-		text-transform: uppercase;
-	}
+    position: relative;
+    top: 0;
+    transition: 0.2s ease-in-out;
 
-	.menu {
-		margin: 0 -1rem;
+    .menu-toggle {
+      transition: 0.2s ease-in-out;
 
-		.button {
-			display: flex;
-			align-items: center;
-			text-decoration: none;
+      .material-icons {
+        font-size: 2rem;
+        color: var(--light);
+        transition: 0.2s ease-out;
+      }
 
-			transition: 0.2s ease-in-out;
-			padding: 0.5rem 1rem;
+      &:hover {
+        .material-icons {
+          color: var(--primary);
+          transform: translateX(0.5rem);
+        }
+      }
+    }
+  }
 
-			.material-icons {
-				font-size: 2rem;
-				color: var(--light);
-				transition: 0.2s ease-in-out;
-			}
-			.text {
-				color: var(--light);
-				transition: 0.2s ease-in-out;
-			}
+  h3,
+  .button .text {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+  }
 
-			&:hover {
-				background-color: var(--dark-alt);
+  h3 {
+    color: var(--grey);
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+  }
 
-				.material-icons, .text {
-					color: var(--primary);
-				}
-			}
+  .menu {
+    margin: 0 -1rem;
 
-			&.router-link-exact-active {
-				background-color: var(--dark-alt);
-				border-right: 5px solid var(--primary);
+    .button {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
 
-				.material-icons, .text {
-					color: var(--primary);
-				}
-			}
-		}
-	}
+      transition: 0.2s ease-in-out;
+      padding: 0.5rem 1rem;
 
-	.footer {
-		opacity: 0;
-		transition: opacity 0.3s ease-in-out;
+      .material-icons {
+        font-size: 2rem;
+        color: var(--light);
+        transition: 0.2s ease-in-out;
+      }
 
-		p {
-			font-size: 0.875rem;
-			color: var(--grey);
-		}
-	}
+      .material-symbols-outlined {
+        font-size: 2rem;
+        color: var(--light);
+        transition: 0.2s ease-in-out;
+      }
 
-	&.is-expanded {
-		width: var(--sidebar-width);
+      .text {
+        color: var(--light);
+        transition: 0.2s ease-in-out;
+      }
 
-		.menu-toggle-wrap {
-			top: -3rem;
+      &:hover {
+        background-color: var(--dark-alt);
 
-			.menu-toggle {
-				transform: rotate(-180deg);
-			}
-		}
+        .material-icons,
+        .text {
+          color: var(--primary);
+        }
 
-		h3, .button .text {
-			opacity: 1;
-		}
+        .material-symbols-outlined {
+          color: var(--primary);
+        }
 
-		.button {
-			.material-icons {
-				margin-right: 1rem;
-			}
-		}
+      }
 
-		.footer {
-			opacity: 0;
-		}
-	}
+      &.router-link-exact-active {
+        background-color: var(--dark-alt);
+        border-right: 5px solid var(--primary);
 
-	@media (max-width: 1024px) {
-		position: absolute;
-		z-index: 99;
-	}
+        .material-icons,
+        .text {
+          color: var(--primary);
+        }
+      }
+    }
+  }
+
+  .footer {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+
+    p {
+      font-size: 0.875rem;
+      color: var(--grey);
+    }
+  }
+
+  &.is-expanded {
+    width: var(--sidebar-width);
+
+    .menu-toggle-wrap {
+      top: -3rem;
+
+      .menu-toggle {
+        transform: rotate(-180deg);
+      }
+    }
+
+    h3,
+    .button .text {
+      opacity: 1;
+    }
+
+    .button {
+      .material-icons {
+        margin-right: 1rem;
+      }
+
+      .material-symbols-outlined {
+        margin-right: 1rem;
+      }
+    }
+
+    .footer {
+      opacity: 0;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    position: absolute;
+    z-index: 99;
+  }
 }
 </style>

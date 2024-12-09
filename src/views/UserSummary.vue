@@ -2,7 +2,7 @@
   <main class="user-summary-page">
     <section v-if="clusterStore.clusters.length">
       <div>
-        <h3>Clusters</h3>
+        <h3 :class="appStore.colorMode">Cluster Summary</h3>
       </div>
       <ClustersSummary />
       <button class="create-cluster" @click.prevent="toggleCreateClusterForm">
@@ -271,4 +271,13 @@ ul {
   }
 
 }
+
+h3.dark {
+  color: white;
+}
+
+h3.light {
+  color: black;
+}
+
 </style>
