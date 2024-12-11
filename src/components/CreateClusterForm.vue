@@ -1,21 +1,13 @@
 <template>
-  <div class="container">
+  <div class="container" :class="appStore.colorMode">
     <h4>Create New Cluster</h4>
     <form class="create-cluster-form" @submit.prevent="createCluster">
-      <input
-        type="text"
-        v-model="clusterName"
-        placeholder="Cluster name"
-        :class="{ 'input-error': !isValidName && touchedName }"
-        @blur="touchedName = true"
-      />
+      <input type="text" v-model="clusterName" placeholder="Cluster name"
+        :class="{ 'input-error': !isValidName && touchedName }" @blur="touchedName = true" />
       <p v-if="!isValidName && touchedName" class="error-message">Cluster name is required.</p>
 
-      <select
-        v-model="clusterRegion"
-        :class="{ 'input-error': !isValidRegion && touchedRegion }"
-        @blur="touchedRegion = true"
-      >
+      <select v-model="clusterRegion" :class="{ 'input-error': !isValidRegion && touchedRegion }"
+        @blur="touchedRegion = true">
         <option value="" disabled selected>Select a region</option>
         <option v-for="region in clusterStore.getRegions()" :key="region" :value="region">
           {{ region }}
@@ -37,7 +29,9 @@
 import { ref, computed } from 'vue'
 import { useClusterStore } from '@/store/ClusterStore'
 import { useToast } from 'vue-toastification'
+import { useAppStore } from '@/store/AppStore';
 
+const appStore = useAppStore()
 const clusterStore = useClusterStore()
 
 const clusterName = ref('')
@@ -86,11 +80,37 @@ const createCluster = async () => {
 
 <style lang="scss" scoped>
 .container {
+  position: absolute;
+  border-radius: 1rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
   padding: 1rem;
   margin-top: 1rem;
+
+  &.dark {
+    background-color: var(--dark-alt);
+    color: white;
+
+    input,
+    select,
+    textarea {
+      background-color: var(--dark);
+      color: white;
+    }
+  }
+
+  &.light {
+    background-color: white;
+    color: black;
+
+    input,
+    select,
+    textarea {
+      background-color: white;
+      color: black;
+    }
+  }
 }
 
 .uuid-note {
@@ -111,7 +131,8 @@ const createCluster = async () => {
 .submit-btn {
   border-radius: 1rem;
   background-color: var(--secondary);
-  padding: 0.5rem 1rem; /* Add horizontal padding for pill shape */
+  padding: 0.5rem 1rem;
+  /* Add horizontal padding for pill shape */
   min-width: unset;
   color: white;
   cursor: pointer;

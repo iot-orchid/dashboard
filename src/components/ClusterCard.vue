@@ -52,6 +52,8 @@ const microdevices = computed(() => clusterStore.getClusterMicrodevices(props.uu
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  width: 100%;
+  height: 100%;
 
   &.dark {
     background: var(--dark-alt);

@@ -1,15 +1,15 @@
 <template>
-  <div class="card">
-    <div class="card-header">
-      <h2>{{ props.name }}</h2>
-    </div>
-    <div class="card-body">
+  <!-- <div class="card"> -->
+  <!-- <div class="card-header"> -->
+  <h2>{{ props.name }}</h2>
+  <!-- </div> -->
+  <!-- <div class="card-body">
       <slot></slot>
-    </div>
-    <div class="card-footer">
+    </div> -->
+  <!-- <div class="card-footer">
       <button class="btn">Action</button>
-    </div>
-  </div>
+    </div> -->
+  <!-- </div> -->
 </template>
 
 <script lang="ts" setup>

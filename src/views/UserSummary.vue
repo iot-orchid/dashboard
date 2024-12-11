@@ -14,9 +14,7 @@
       <div class="work-area">
         <ul>
           <transition name="fade-slide">
-            <div v-if="showCreateClusterForm" class="form-container">
-              <CreateClusterForm />
-            </div>
+            <CreateClusterForm v-if="showCreateClusterForm" />
           </transition>
           <input class="cluster-search" type="text" v-model="clusterSearchQuery" placeholder="Search clusters" />
           <li v-for="cluster in clusterStore.clusters" :key="cluster.uuid"
@@ -29,10 +27,8 @@
             <h3 @click="selectCluster(cluster)">{{ cluster.name }}</h3>
           </li>
         </ul>
-        <div :class="{ 'cluster-graph': true, [appStore.colorMode]: true, [selectedCluster? '': 'empty']: true }">
-          <div v-if="selectedCluster">
-            <ClusterCard :uuid="selectedCluster.uuid" :name="selectedCluster.name" />
-          </div>
+        <div :class="{ 'cluster-graph': true, [appStore.colorMode]: true, [selectedCluster ? '' : 'empty']: true }">
+          <ClusterCard v-if="selectedCluster" :uuid="selectedCluster.uuid" :name="selectedCluster.name" />
           <div v-else>
             <p>Select a cluster to view its details</p>
           </div>
@@ -243,15 +239,6 @@ ul {
   transform: translateY(0);
 }
 
-.form-container {
-  position: absolute;
-
-  margin-bottom: 1rem;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
 .cluster-uuid {
   display: flex;
   justify-content: space-between;
@@ -279,5 +266,4 @@ h3.dark {
 h3.light {
   color: black;
 }
-
 </style>
